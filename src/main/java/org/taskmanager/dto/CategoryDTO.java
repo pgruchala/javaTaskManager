@@ -1,14 +1,12 @@
-package org.taskmanager.model;
+package org.taskmanager.dto;
 
-import java.util.random.RandomGenerator;
-
-public class Category {
+public class CategoryDTO {
     private Long id;
     private String name;
     private String color;
 
-    public Category(){}
-    public Category(String name, String color){
+    public CategoryDTO(){}
+    public CategoryDTO(String name, String color){
         this.name = name;
         this.color = color;
     }

@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:h2:mem:taskdb
     driverClassName: org.h2.Driver
-    username: taskmanager
+    username: taskman
     password: password
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect

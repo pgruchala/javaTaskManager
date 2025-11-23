@@ -1,7 +1,12 @@
 package org.taskmanager.repository;
 
-import org.springframework.stereotype.Repository;
+import org.taskmanager.model.Category;
 
-@Repository
-public class CategoryDAO {
+import java.util.List;
+
+public interface CategoryDAO {
+    void save(Category category);
+    List<Category> findAll();
+    void update(Category category);
+    void deletebyId(Long id);
 }
