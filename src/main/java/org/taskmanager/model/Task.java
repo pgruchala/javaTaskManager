@@ -1,27 +1,42 @@
 package org.taskmanager.model;
 
-import java.time.LocalDate;
-import java.util.UUID;
-import java.util.random.RandomGenerator;
+import jakarta.persistence.*;
 
+import java.time.LocalDate;
+
+@Entity
+@Table(name = "tasks")
 public class Task {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String title;
     private String description;
     private LocalDate dueDate;
-    private Long categoryid;
     private LocalDate createdAt;
     private LocalDate updatedAt;
+
+    @Enumerated(EnumType.STRING)
     private Status status;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
     public Task(){}
-    public Task(String title, String description, LocalDate dueDate, Long categoryId, Status status){
+    public Task(String title, String description, LocalDate dueDate, Category category, Status status){
         this.title = title;
         this.description = description;
         this.dueDate = dueDate;
-        this.categoryid = categoryId;
+        this.category = category;
         this.status = status;
         this.createdAt = LocalDate.now();
+        this.updatedAt = LocalDate.now();
+    }
+
+    @PreUpdate
+    public void preUpdate(){
         this.updatedAt = LocalDate.now();
     }
 
@@ -49,12 +64,12 @@ public class Task {
         this.description = description;
     }
 
-    public Long getCategoryid() {
-        return categoryid;
+    public Category getCategory() {
+        return category;
     }
 
-    public void setCategoryid(Long categoryid) {
-        this.categoryid = categoryid;
+    public void setCategory(Category category) {
+        this.category = category;
     }
 
     public LocalDate getCreatedAt() {
@@ -88,6 +103,7 @@ public class Task {
     public void setStatus(Status status) {
         this.status = status;
     }
+
     @Override
     public String toString(){
         return "Task{"+
@@ -98,6 +114,6 @@ public class Task {
                 ", due date="+dueDate+
                 ", created at"+createdAt+
                 ", updated at"+ updatedAt+
-                ", category Id"+categoryid+"}";
+                ", category"+category.toString()+"}";
     }
 }

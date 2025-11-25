@@ -1,11 +1,21 @@
 package org.taskmanager.model;
 
-import java.util.random.RandomGenerator;
+import jakarta.persistence.*;
 
+import java.util.List;
+
+@Entity
+@Table(name = "categories")
 public class Category {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = false)
     private String name;
     private String color;
+
+    @OneToMany(mappedBy = "category",cascade = CascadeType.ALL)
+    private List<Task> tasks;
 
     public Category(){}
     public Category(String name, String color){

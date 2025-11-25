@@ -1,9 +1,14 @@
 package org.taskmanager.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.taskmanager.dto.TaskDTO;
+import org.taskmanager.model.Category;
 import org.taskmanager.model.Task;
-import org.taskmanager.repository.TaskDAO;
+import org.taskmanager.repository.CategoryRepository;
+import org.taskmanager.repository.TaskRepository;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -11,54 +16,64 @@ import java.util.stream.Collectors;
 
 @Service
 public class TaskService {
-    private final TaskDAO taskDAO;
+    private final TaskRepository taskRepository;
+    private final CategoryRepository categoryRepository;
 
-    public TaskService(TaskDAO taskDAO) {
-        this.taskDAO = taskDAO;
+    public TaskService(TaskRepository taskRepository,CategoryRepository categoryRepository) {
+        this.categoryRepository = categoryRepository;
+        this.taskRepository = taskRepository;
     }
 
     public List<TaskDTO> getAllTasks() {
-        return taskDAO.findAll().stream()
+        return taskRepository.findAll().stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
+    public Page<TaskDTO> getTasksPage(Pageable pageable) {
+        return taskRepository.findAll(pageable)
+                .map(this::mapToDTO);
+    }
 
     public TaskDTO getTaskById(Long id) {
-        return taskDAO.findById(id)
+        return taskRepository.findById(id)
                 .map(this::mapToDTO)
                 .orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
     }
 
+    @Transactional
     public void createTask(TaskDTO taskDTO) {
+        Category category = categoryRepository.findById(taskDTO.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
         Task task = new Task(
                 taskDTO.getTitle(),
                 taskDTO.getDescription(),
                 taskDTO.getDueDate(),
-                taskDTO.getCategoryId(),
+                category,
                 taskDTO.getStatus()
         );
-        taskDAO.save(task);
+        taskRepository.save(task);
     }
 
+    @Transactional
     public void updateTask(Long id, TaskDTO taskDTO) {
-        Optional<Task> existingTaskOpt = taskDAO.findById(id);
-        if (existingTaskOpt.isPresent()) {
-            Task task = existingTaskOpt.get();
-            task.setTitle(taskDTO.getTitle());
-            task.setDescription(taskDTO.getDescription());
-            task.setDueDate(taskDTO.getDueDate());
-            task.setCategoryid(taskDTO.getCategoryId());
-            task.setStatus(taskDTO.getStatus());
-            task.setUpdatedAt(LocalDate.now());
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
 
-            taskDAO.update(task);
-        } else {
-            throw new RuntimeException("Task not found with id: " + id);
-        }
+        Category category = categoryRepository.findById(taskDTO.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
+        task.setTitle(taskDTO.getTitle());
+        task.setDescription(taskDTO.getDescription());
+        task.setDueDate(taskDTO.getDueDate());
+        task.setCategory(category);
+        task.setStatus(taskDTO.getStatus());
+
+        taskRepository.save(task);
     }
 
     public void deleteTask(Long id) {
-        taskDAO.deleteById(id);
+        taskRepository.deleteById(id);
     }
 
     private TaskDTO mapToDTO(Task task) {
@@ -67,7 +82,7 @@ public class TaskService {
                 task.getTitle(),
                 task.getDescription(),
                 task.getDueDate(),
-                task.getCategoryid(),
+                task.getCategory() != null ? task.getCategory().getId() : null,
                 task.getStatus()
         );
     }

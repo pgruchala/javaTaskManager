@@ -34,6 +34,14 @@ public class TaskController {
     }
     @PostMapping
     public ResponseEntity<Void> createTask(@RequestBody TaskDTO taskDTO) {
+        // --- DIAGNOSTYKA START ---
+        System.out.println("================ DIAGNOSTYKA ================");
+        System.out.println("Tytuł: " + taskDTO.getTitle());
+        System.out.println("Otrzymane ID Kategorii: " + taskDTO.getCategoryId()); // Czy tu jest null?
+        System.out.println("Status: " + taskDTO.getStatus());
+        System.out.println("=============================================");
+        // --- DIAGNOSTYKA END ---
+
         taskService.createTask(taskDTO);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

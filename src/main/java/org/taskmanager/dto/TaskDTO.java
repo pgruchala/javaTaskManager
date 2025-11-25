@@ -1,7 +1,6 @@
 package org.taskmanager.dto;
 
 import org.taskmanager.model.Status;
-import org.taskmanager.model.Task;
 
 import java.time.LocalDate;
 
@@ -10,18 +9,18 @@ public class TaskDTO {
     private String title;
     private String description;
     private LocalDate dueDate;
-    private Long categoryid;
+    private Long categoryId;
     private LocalDate createdAt;
     private LocalDate updatedAt;
     private Status status;
 
     public TaskDTO(){}
-    public TaskDTO(Long id, String title, String description, LocalDate dueDate, Long categoryid, Status status){
+    public TaskDTO(Long id, String title, String description, LocalDate dueDate, Long categoryId, Status status){
         this.id = id;
         this.title = title;
         this.description = description;
         this.dueDate = dueDate;
-        this.categoryid = categoryid;
+        this.categoryId = categoryId;
         this.status = status;
     }
 
@@ -33,8 +32,8 @@ public class TaskDTO {
         this.createdAt = createdAt;
     }
 
-    public void setCategoryid(Long categoryid) {
-        this.categoryid = categoryid;
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
     }
 
     public void setDescription(String description) {
@@ -78,6 +77,6 @@ public class TaskDTO {
     }
 
     public Long getCategoryId() {
-        return categoryid;
+        return categoryId;
     }
 }
