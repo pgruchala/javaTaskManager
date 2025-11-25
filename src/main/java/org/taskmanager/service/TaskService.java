@@ -5,14 +5,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.taskmanager.dto.TaskDTO;
+import org.taskmanager.exceptions.ResourceNotFoundException;
 import org.taskmanager.model.Category;
+import org.taskmanager.model.Status;
 import org.taskmanager.model.Task;
 import org.taskmanager.repository.CategoryRepository;
 import org.taskmanager.repository.TaskRepository;
-
-import java.time.LocalDate;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class TaskService {
@@ -24,24 +22,29 @@ public class TaskService {
         this.taskRepository = taskRepository;
     }
 
-    public List<TaskDTO> getAllTasks() {
-        return taskRepository.findAll().stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
-    }
-    public Page<TaskDTO> getTasksPage(Pageable pageable) {
-        return taskRepository.findAll(pageable)
-                .map(this::mapToDTO);
+    @Transactional(readOnly = true)
+    public Page<Task> getTasks(String searchTitle, Status status, Long categoryId, Pageable pageable) {
+        if (searchTitle != null && !searchTitle.isBlank()) {
+            return taskRepository.searchByTitle(searchTitle, pageable);
+        } else if (status != null && categoryId != null) {
+            return taskRepository.findByStatusAndCategoryId(status, categoryId, pageable);
+        } else if (status != null) {
+            return taskRepository.findByStatus(status, pageable);
+        } else if (categoryId != null) {
+            return taskRepository.findByCategoryId(categoryId, pageable);
+        }
+
+        return taskRepository.findAll(pageable);
     }
 
-    public TaskDTO getTaskById(Long id) {
+    @Transactional(readOnly = true)
+    public Task getTaskById(Long id) {
         return taskRepository.findById(id)
-                .map(this::mapToDTO)
-                .orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + id));
     }
 
     @Transactional
-    public void createTask(TaskDTO taskDTO) {
+    public Task createTask(TaskDTO taskDTO) {
         Category category = categoryRepository.findById(taskDTO.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found"));
 
@@ -52,11 +55,11 @@ public class TaskService {
                 category,
                 taskDTO.getStatus()
         );
-        taskRepository.save(task);
+        return taskRepository.save(task);
     }
 
     @Transactional
-    public void updateTask(Long id, TaskDTO taskDTO) {
+    public Task updateTask(Long id, TaskDTO taskDTO) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
 
@@ -69,22 +72,16 @@ public class TaskService {
         task.setCategory(category);
         task.setStatus(taskDTO.getStatus());
 
-        taskRepository.save(task);
+        return taskRepository.save(task);
     }
 
     public void deleteTask(Long id) {
+        if (!taskRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Task not found with id: " + id);
+        }
         taskRepository.deleteById(id);
     }
 
-    private TaskDTO mapToDTO(Task task) {
-        return new TaskDTO(
-                task.getId(),
-                task.getTitle(),
-                task.getDescription(),
-                task.getDueDate(),
-                task.getCategory() != null ? task.getCategory().getId() : null,
-                task.getStatus()
-        );
-    }
+
 
 }

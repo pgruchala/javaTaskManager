@@ -14,7 +14,7 @@ public class AppConfig {
         return new TaskService(taskRepository, categoryRepository);
     }
     @Bean
-    public CategoryService categoryService(CategoryRepository categoryRepository){
-        return new CategoryService(categoryRepository);
+    public CategoryService categoryService(CategoryRepository categoryRepository, TaskRepository taskRepository){
+        return new CategoryService(categoryRepository, taskRepository);
     }
 }

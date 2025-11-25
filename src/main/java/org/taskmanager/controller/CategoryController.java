@@ -1,11 +1,14 @@
 package org.taskmanager.controller;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.Valid;
 import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.taskmanager.dto.CategoryDTO;
+import org.taskmanager.model.Category;
 import org.taskmanager.service.CategoryService;
 
 import java.util.List;
@@ -19,26 +22,36 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
     @GetMapping
-    public ResponseEntity<List<CategoryDTO>> getCategories(){
-        List<CategoryDTO> categories = categoryService.getAllCategories();
-        return ResponseEntity.ok(categories);
+    public ResponseEntity<List<Category>> getAllCategories() {
+        return ResponseEntity.ok(categoryService.getAllCategories());
+    }
 
+    @GetMapping("/{id}")
+    @ApiResponse(responseCode = "404", description = "Kategoria nie istnieje")
+    public ResponseEntity<Category> getCategoryById(@PathVariable Long id) {
+        return ResponseEntity.ok(categoryService.getCategoryById(id));
     }
+
     @PostMapping
-    public ResponseEntity<Void> createCategory(@RequestBody CategoryDTO categoryDTO){
-        categoryService.addCategory(categoryDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    @ApiResponse(responseCode = "201", description = "Utworzono kategorię")
+    public ResponseEntity<Category> createCategory(@Valid @RequestBody CategoryDTO categoryDTO) {
+        Category createdCategory = categoryService.createCategory(categoryDTO);
+        return new ResponseEntity<>(createdCategory, HttpStatus.CREATED);
     }
+
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateCategory(@PathVariable Long id, @RequestBody CategoryDTO categoryDTO){
-        categoryService.updateCategory(id, categoryDTO);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Category> updateCategory(
+            @PathVariable Long id,
+            @Valid @RequestBody CategoryDTO categoryDTO) {
+        Category updatedCategory = categoryService.updateCategory(id, categoryDTO);
+        return ResponseEntity.ok(updatedCategory);
     }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCategory(@PathVariable Long id){
+    @ApiResponse(responseCode = "204", description = "Usunięto pomyślnie")
+    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
         categoryService.deleteCategory(id);
         return ResponseEntity.noContent().build();
     }
-
 
 }

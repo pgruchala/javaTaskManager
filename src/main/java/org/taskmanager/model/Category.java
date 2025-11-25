@@ -1,21 +1,30 @@
 package org.taskmanager.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "categories")
+@Getter
+@Setter
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(nullable = false)
     private String name;
+
     private String color;
 
-    @OneToMany(mappedBy = "category",cascade = CascadeType.ALL)
-    private List<Task> tasks;
+    @OneToMany(mappedBy = "category")
+    private List<Task> tasks = new ArrayList<>();
 
     public Category(){}
     public Category(String name, String color){
@@ -23,27 +32,4 @@ public class Category {
         this.color = color;
     }
 
-    public void setColor(String color) {
-        this.color = color;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getColor() {
-        return color;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 }
