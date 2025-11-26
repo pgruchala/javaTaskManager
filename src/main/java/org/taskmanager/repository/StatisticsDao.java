@@ -1,12 +1,18 @@
 package org.taskmanager.repository;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.taskmanager.dto.StatsDTO;
 import org.taskmanager.model.Status;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Repository
@@ -21,8 +27,12 @@ public class StatisticsDao {
 
         String groupSql = "SELECT status, COUNT(*) as count FROM tasks GROUP BY status";
 
-        Map<String, Integer> statusCounts = new HashMap<>();
+        List<StatusCount> statusList = jdbcTemplate.query(groupSql, new StatusCountRowMapper());
 
+        Map<String, Integer> statusCounts = new HashMap<>();
+        for (StatusCount sc : statusList) {
+            statusCounts.put(sc.getStatus(), sc.getCount());
+        }
 
         jdbcTemplate.query(groupSql, (rs, rowNum) -> {
             String status = rs.getString("status");
@@ -39,5 +49,21 @@ public class StatisticsDao {
         percentage = Math.round(percentage * 100.0) / 100.0;
 
         return new StatsDTO(totalTasks, todo, inProgress, done, percentage);
+    }
+    @Getter
+    @AllArgsConstructor
+    private static class StatusCount {
+        private String status;
+        private int count;
+    }
+
+    private static class StatusCountRowMapper implements RowMapper<StatusCount> {
+        @Override
+        public StatusCount mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new StatusCount(
+                    rs.getString("status"),
+                    rs.getInt("count")
+            );
+        }
     }
 }

@@ -12,6 +12,10 @@ import org.taskmanager.model.Task;
 import org.taskmanager.repository.CategoryRepository;
 import org.taskmanager.repository.TaskRepository;
 
+import java.io.IOException;
+import java.io.Writer;
+import java.util.List;
+
 @Service
 public class TaskService {
     private final TaskRepository taskRepository;
@@ -82,6 +86,33 @@ public class TaskService {
         taskRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
+    public void exportTasksToCsv(Writer writer) throws IOException {
+        List<Task> tasks = taskRepository.findAll();
+        writer.write("ID,Title,Description,Status,Due Date,Category,Created At,Updated At\n");
+
+        // Dane
+        for (Task task : tasks) {
+            writer.write(String.format("%d,\"%s\",\"%s\",%s,%s,\"%s\",%s,%s\n",
+                    task.getId(),
+                    escapeCsv(task.getTitle()),
+                    escapeCsv(task.getDescription()),
+                    task.getStatus(),
+                    task.getDueDate() != null ? task.getDueDate().toString() : "",
+                    task.getCategory() != null ? escapeCsv(task.getCategory().getName()) : "No Category",
+                    task.getCreatedAt(),
+                    task.getUpdatedAt()
+            ));
+        }
+
+        writer.flush();
+    }
+    private String escapeCsv(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.replace("\"", "\"\"");
+    }
 
 
 }

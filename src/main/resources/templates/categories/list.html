@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: header}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Kategorie</h2>
+        <a th:href="@{/categories/new}" class="btn btn-success">Nowa Kategoria</a>
+    </div>
+
+    <table class="table table-hover table-bordered">
+        <thead class="table-light">
+        <tr>
+            <th>ID</th>
+            <th>Nazwa</th>
+            <th>Kolor</th>
+            <th>Akcje</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="cat : ${categories}">
+            <td th:text="${cat.id}">1</td>
+            <td th:text="${cat.name}" class="fw-bold">Nazwa</td>
+            <td>
+                <div class="d-flex align-items-center">
+                    <div style="width: 20px; height: 20px; border: 1px solid #ccc; margin-right: 10px;"
+                         th:styleappend="'background-color: ' + ${cat.color}"></div>
+                    <span th:text="${cat.color}">#FFFFFF</span>
+                </div>
+            </td>
+            <td>
+                <a th:href="@{/categories/edit/{id}(id=${cat.id})}" class="btn btn-sm btn-outline-primary">Edytuj</a>
+                <a th:href="@{/categories/delete/{id}(id=${cat.id})}"
+                   class="btn btn-sm btn-outline-danger"
+                   onclick="return confirm('Uwaga: Usunięcie kategorii usunie ją z przypisanych zadań. Kontynuować?');">Usuń</a>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(categories)}">
+            <td colspan="4" class="text-center">Brak kategorii.</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

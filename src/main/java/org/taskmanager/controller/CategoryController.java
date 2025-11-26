@@ -1,5 +1,6 @@
 package org.taskmanager.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import org.apache.coyote.Response;
@@ -22,17 +23,20 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
     @GetMapping
+    @Operation(summary ="Pobierz wszystkie kategorie")
     public ResponseEntity<List<Category>> getAllCategories() {
         return ResponseEntity.ok(categoryService.getAllCategories());
     }
 
     @GetMapping("/{id}")
+    @Operation(summary ="Pobierz konkretną kategorię")
     @ApiResponse(responseCode = "404", description = "Kategoria nie istnieje")
     public ResponseEntity<Category> getCategoryById(@PathVariable Long id) {
         return ResponseEntity.ok(categoryService.getCategoryById(id));
     }
 
     @PostMapping
+    @Operation(summary ="Utwórz kategorię")
     @ApiResponse(responseCode = "201", description = "Utworzono kategorię")
     public ResponseEntity<Category> createCategory(@Valid @RequestBody CategoryDTO categoryDTO) {
         Category createdCategory = categoryService.createCategory(categoryDTO);
@@ -40,6 +44,7 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary ="Zaktualizuj kategorię")
     public ResponseEntity<Category> updateCategory(
             @PathVariable Long id,
             @Valid @RequestBody CategoryDTO categoryDTO) {
@@ -48,6 +53,7 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary ="Usuń kategorię")
     @ApiResponse(responseCode = "204", description = "Usunięto pomyślnie")
     public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
         categoryService.deleteCategory(id);

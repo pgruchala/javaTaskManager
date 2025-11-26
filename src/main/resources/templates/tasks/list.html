@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{layout :: header}"></head>
+  <style>
+      .container{padding-top:50px;}
+  </style>
+  <body>
+    <nav th:replace="~{layout :: navbar}"></nav>
+
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Lista Zadań</h2>
+        <a th:href="@{/tasks/new}" class="btn btn-primary">Nowe Zadanie</a>
+      </div>
+
+      <table class="table table-hover table-bordered">
+        <thead class="table-light">
+          <tr>
+            <th>Tytuł</th>
+            <th>Status</th>
+            <th>Termin</th>
+            <th>Kategoria</th>
+            <th>Akcje</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="task : ${tasks}">
+            <td>
+              <span th:text="${task.title}" class="fw-bold">Tytuł</span><br />
+              <small th:text="${task.description}" class="text-muted"
+                >Opis</small
+              >
+            </td>
+            <td>
+              <span
+                th:text="${task.status}"
+                class="badge"
+                th:classappend="${task.status.name() == 'DONE'} ? 'bg-success' : 
+                                     (${task.status.name() == 'IN_PROGRESS'} ? 'bg-warning text-dark' : 'bg-secondary')"
+              >
+              </span>
+            </td>
+            <td th:text="${task.dueDate}">2023-01-01</td>
+            <td
+              th:text="${task.category != null} ? ${task.category.name} : '-'"
+            >
+              Kategoria
+            </td>
+            <td>
+              <a
+                th:href="@{/tasks/edit/{id}(id=${task.id})}"
+                class="btn btn-sm btn-outline-primary"
+                >Edytuj</a
+              >
+              <a
+                th:href="@{/tasks/delete/{id}(id=${task.id})}"
+                class="btn btn-sm btn-outline-danger"
+                onclick="return confirm('Czy na pewno usunąć to zadanie?');"
+                >Usuń</a
+              >
+            </td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(tasks)}">
+            <td colspan="5" class="text-center">Brak zadań do wyświetlenia.</td>
+          </tr>
+        </tbody>
+      </table>
+        <nav aria-label="Nawigacja strony" th:if="${totalPages > 1}" class="mt-4">
+            <ul class="pagination justify-content-center">
+
+                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/tasks(page=${currentPage - 1}, title=${param.title}, status=${param.status})}">
+                        &laquo; Poprzednia
+                    </a>
+                </li>
+
+                <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                    th:classappend="${currentPage == i} ? 'active'">
+                    <a class="page-link"
+                       th:href="@{/tasks(page=${i}, title=${param.title}, status=${param.status})}"
+                       th:text="${i + 1}">
+                        1
+                    </a>
+                </li>
+
+                <li class="page-item" th:classappend="${currentPage + 1 == totalPages} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/tasks(page=${currentPage + 1}, title=${param.title}, status=${param.status})}">
+                        Następna &raquo;
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <div th:replace="~{layout :: scripts}"></div>
+  </body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{layout :: header}"></head>
+  <body>
+    <nav th:replace="~{layout :: navbar}"></nav>
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-8">
+          <div class="card shadow-sm">
+            <div class="card-header bg-light">
+              <h4
+                th:text="${taskId == null} ? 'Nowe Zadanie' : 'Edycja Zadania'"
+              >
+                Formularz
+              </h4>
+            </div>
+            <div class="card-body">
+              <form
+                th:action="${taskId == null} ? @{/tasks/save} : @{/tasks/update/{id}(id=${taskId})}"
+                th:object="${taskDTO}"
+                method="post"
+              >
+                <div class="mb-3">
+                  <label class="form-label">Tytuł</label>
+                  <input
+                    type="text"
+                    th:field="*{title}"
+                    class="form-control"
+                    th:classappend="${#fields.hasErrors('title')} ? 'is-invalid' : ''"
+                  />
+                  <div
+                    class="invalid-feedback"
+                    th:if="${#fields.hasErrors('title')}"
+                    th:errors="*{title}"
+                  >
+                    Błąd tytułu
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">Opis</label>
+                  <textarea
+                    th:field="*{description}"
+                    class="form-control"
+                    rows="3"
+                    th:classappend="${#fields.hasErrors('description')} ? 'is-invalid' : ''"
+                  ></textarea>
+                  <div
+                    class="invalid-feedback"
+                    th:errors="*{description}"
+                  ></div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Data wykonania</label>
+                    <input
+                      type="date"
+                      th:field="*{dueDate}"
+                      class="form-control"
+                      th:classappend="${#fields.hasErrors('dueDate')} ? 'is-invalid' : ''"
+                    />
+                    <div class="invalid-feedback" th:errors="*{dueDate}"></div>
+                  </div>
+
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Status</label>
+                    <select th:field="*{status}" class="form-select">
+                      <option
+                        th:each="state : ${T(org.taskmanager.model.Status).values()}"
+                        th:value="${state}"
+                        th:text="${state}"
+                      ></option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">Kategoria</label>
+                  <select th:field="*{categoryId}" class="form-select">
+                    <option value="" selected>-- Brak --</option>
+                    <option
+                      th:each="cat : ${categories}"
+                      th:value="${cat.id}"
+                      th:text="${cat.name}"
+                    ></option>
+                  </select>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                  <a th:href="@{/tasks}" class="btn btn-secondary me-md-2"
+                    >Anuluj</a
+                  >
+                  <button type="submit" class="btn btn-primary">Zapisz</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div th:replace="~{layout :: scripts}"></div>
+  </body>
+</html>

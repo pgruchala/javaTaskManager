@@ -1,5 +1,6 @@
 package org.taskmanager.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
@@ -24,6 +25,7 @@ public class Category {
     private String color;
 
     @OneToMany(mappedBy = "category")
+    @JsonIgnore
     private List<Task> tasks = new ArrayList<>();
 
     public Category(){}

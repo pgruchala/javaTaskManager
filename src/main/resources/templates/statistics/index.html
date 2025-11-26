@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: header}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<div class="container">
+    <h2 class="mb-4">Statystyki Projektu</h2>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Postęp całkowity</h5>
+            <div class="progress" style="height: 30px;">
+                <div class="progress-bar bg-success" role="progressbar"
+                     th:style="'width: ' + ${stats.completionsPercentage} + '%'"
+                     th:aria-valuenow="${stats.completionsPercentage}" aria-valuemin="0" aria-valuemax="100">
+
+                    <span th:text="${stats.completionsPercentage} + '%'">0%</span>
+                </div>
+            </div>
+            <p class="text-muted mt-2 mb-0">
+                Procent zadań o statusie <strong>DONE</strong> względem wszystkich.
+            </p>
+        </div>
+    </div>
+
+    <div class="row text-center">
+
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-primary h-100 shadow-sm">
+                <div class="card-header">Wszystkie</div>
+                <div class="card-body">
+                    <h1 class="display-4" th:text="${stats.totalTasks}">0</h1>
+                    <p class="card-text">Łączna liczba zadań</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card bg-light h-100 shadow-sm border-secondary">
+                <div class="card-header text-secondary fw-bold">Do Zrobienia</div>
+                <div class="card-body text-secondary">
+                    <h1 class="display-4" th:text="${stats.todoTasks}">0</h1>
+                    <p class="card-text">Status: TODO</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card text-dark bg-warning h-100 shadow-sm" style="--bs-bg-opacity: .5;">
+                <div class="card-header fw-bold">W Trakcie</div>
+                <div class="card-body">
+                    <h1 class="display-4" th:text="${stats.inProgressTasks}">0</h1>
+                    <p class="card-text">Status: IN_PROGRESS</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-success h-100 shadow-sm">
+                <div class="card-header">Ukończone</div>
+                <div class="card-body">
+                    <h1 class="display-4" th:text="${stats.doneTasks}">0</h1>
+                    <p class="card-text">Status: DONE</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4 text-center">
+        <a th:href="@{/tasks}" class="btn btn-outline-primary">Przejdź do listy zadań</a>
+    </div>
+
+</div>
+
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>
