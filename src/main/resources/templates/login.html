@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: header}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4>Logowanie</h4>
+                </div>
+                <div class="card-body">
+
+                    <div th:if="${param.error}" class="alert alert-danger text-center">
+                        Błędna nazwa użytkownika lub hasło.
+                    </div>
+
+                    <div th:if="${param.logout}" class="alert alert-info text-center">
+                        Wylogowano pomyślnie.
+                    </div>
+
+                    <div th:if="${param.success}" class="alert alert-success text-center">
+                        Rejestracja udana! Zaloguj się.
+                    </div>
+
+                    <form th:action="@{/login}" method="post">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Nazwa użytkownika</label>
+                            <input type="text" id="username" name="username" class="form-control" required autofocus>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Hasło</label>
+                            <input type="password" id="password" name="password" class="form-control" required>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Zaloguj się</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    <small>Nie masz konta? <a th:href="@{/register}">Zarejestruj się</a></small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

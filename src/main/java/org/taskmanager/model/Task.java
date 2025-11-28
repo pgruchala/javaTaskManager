@@ -1,5 +1,6 @@
 package org.taskmanager.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,20 +35,27 @@ public class Task {
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "category_id")
     @OnDelete(action = OnDeleteAction.SET_NULL)
     private Category category;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    private User user;
+
+    @Column(name = "attachment_filename")
+    private String attachmentFilename;
+
     public Task(){}
-    public Task(String title, String description, LocalDate dueDate, Category category, Status status){
+    public Task(String title, String description, LocalDate dueDate, Category category, Status status, User user){
         this.title = title;
         this.description = description;
         this.dueDate = dueDate;
         this.category = category;
         this.status = status;
-        this.createdAt = LocalDate.now();
-        this.updatedAt = LocalDate.now();
+        this.user = user;
     }
 
     @PreUpdate

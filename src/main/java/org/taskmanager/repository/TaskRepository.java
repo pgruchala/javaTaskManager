@@ -8,21 +8,23 @@ import org.taskmanager.model.Status;
 import org.taskmanager.model.Task;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.taskmanager.model.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
-    @Query("SELECT t FROM Task t WHERE lower(t.title) LIKE lower(concat('%', :keyword, '%'))")
-    Page<Task> searchByTitle(@Param("keyword") String keyword, Pageable pageable);
+    @Query("SELECT t FROM Task t WHERE t.user = :user AND lower(t.title) LIKE lower(concat('%', :keyword, '%'))")
+    Page<Task> searchByTitleAndUser(@Param("keyword") String keyword, @Param("user") User user, Pageable pageable);
 
-    Page<Task> findByStatusAndCategoryId(Status status, Long categoryId, Pageable pageable);
-    Page<Task> findByStatus(Status status, Pageable pageable);
-    Page<Task> findByCategoryId(Long categoryId, Pageable pageable);
+    Page<Task> findByUser(User user, Pageable pageable);
 
-    Page<Task> findByDueDateBefore(LocalDateTime date, Pageable pageable);
-    Page<Task> findByDueDateAfter(LocalDateTime date, Pageable pageable);
+    Page<Task> findByStatusAndCategoryIdAndUser(Status status, Long categoryId,User user, Pageable pageable);
+    Page<Task> findByStatusAndUser(Status status,User user, Pageable pageable);
+    Page<Task> findByCategoryIdAndUser(Long categoryId,User user, Pageable pageable);
 
-    List<Task> findAllByCategoryId(Long categoryId);
+    Page<Task> findByDueDateBeforeAndUser(LocalDateTime date, User user, Pageable pageable);
+    Page<Task> findByDueDateAfterAndUser(LocalDateTime date, User user, Pageable pageable);
+
 }

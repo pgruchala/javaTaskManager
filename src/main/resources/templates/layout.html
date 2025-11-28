@@ -1,5 +1,9 @@
 <!DOCTYPE html>
-<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<html
+  lang="pl"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
   <head th:fragment="header">
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -17,18 +21,11 @@
   </head>
   <body>
     <nav th:fragment="navbar" class="navbar navbar-expand-lg bg-light mb-4">
-      <div class="container">
+      <div class="nav-container">
         <a href="/tasks" class="navbar-brand">TaskManager</a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar collapse" id="navbarNav">
-          <ul class="navbar-nav">
+
+        <div class="navbar" id="navbarNav">
+          <ul class="navbar-nav me-auto">
             <li class="nav-item">
               <a th:href="@{/tasks}" class="nav-link">Zadania</a>
             </li>
@@ -37,6 +34,35 @@
             </li>
             <li class="nav-item">
               <a th:href="@{/statistics}" class="nav-link">Statystyki</a>
+            </li>
+          </ul>
+
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item" sec:authorize="isAnonymous()">
+              <a th:href="@{/login}" class="btn btn-outline-primary me-2"
+                >Logowanie</a
+              >
+            </li>
+            <li class="nav-item" sec:authorize="isAnonymous()">
+              <a th:href="@{/register}" class="btn btn-primary">Rejestracja</a>
+            </li>
+
+            <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                <span sec:authentication="name">User</span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="dropdown-item">Wyloguj</button>
+                  </form>
+                </li>
+              </ul>
             </li>
           </ul>
         </div>

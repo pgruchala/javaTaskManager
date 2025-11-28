@@ -28,10 +28,16 @@ public class Category {
     @JsonIgnore
     private List<Task> tasks = new ArrayList<>();
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    private User user;
+
     public Category(){}
-    public Category(String name, String color){
+    public Category(String name, String color, User user){
         this.name = name;
         this.color = color;
+        this.user = user;
     }
 
 }
