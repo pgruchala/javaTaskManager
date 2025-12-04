@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.taskmanager.dto.TaskDTO;
 import org.taskmanager.exceptions.ResourceNotFoundException;
 import org.taskmanager.model.Category;
@@ -17,6 +18,7 @@ import org.taskmanager.repository.UserRepository;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.file.Path;
 import java.util.List;
 
 @Service
@@ -24,11 +26,13 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
+    private final FileStorageService fileStorageService;
 
-    public TaskService(TaskRepository taskRepository,CategoryRepository categoryRepository, UserRepository userRepository) {
+    public TaskService(TaskRepository taskRepository,CategoryRepository categoryRepository, UserRepository userRepository, FileStorageService fileStorageService) {
         this.categoryRepository = categoryRepository;
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
+        this.fileStorageService = fileStorageService;
     }
 
     private User getCurrentUser(){
@@ -121,7 +125,6 @@ public class TaskService {
         List<Task> tasks = taskRepository.findByUser(currentUser,Pageable.unpaged()).getContent();
         writer.write("ID,Title,Description,Status,Due Date,Category,Created At,Updated At\n");
 
-        // Dane
         for (Task task : tasks) {
             writer.write(String.format("%d,\"%s\",\"%s\",%s,%s,\"%s\",%s,%s\n",
                     task.getId(),
@@ -144,5 +147,44 @@ public class TaskService {
         return value.replace("\"", "\"\"");
     }
 
+    @Transactional
+    public Task uploadAttachment(Long id, MultipartFile file) {
+        Task task = getTaskById(id);
+
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("Plik nie może być pusty");
+        }
+
+        if (task.getAttachmentFilename() != null) {
+            fileStorageService.deleteFile(task.getAttachmentFilename());
+        }
+
+        String filename = fileStorageService.storeFile(file, task.getTitle());
+        task.setAttachmentFilename(filename);
+
+        return taskRepository.save(task);
+    }
+
+    @Transactional(readOnly = true)
+    public Path getAttachment(Long id) {
+        Task task = getTaskById(id);
+
+        if (task.getAttachmentFilename() == null) {
+            throw new ResourceNotFoundException("Zadanie nie ma załącznika");
+        }
+
+        return fileStorageService.loadFile(task.getAttachmentFilename());
+    }
+
+    @Transactional
+    public void deleteAttachment(Long id) {
+        Task task = getTaskById(id);
+
+        if (task.getAttachmentFilename() != null) {
+            fileStorageService.deleteFile(task.getAttachmentFilename());
+            task.setAttachmentFilename(null);
+            taskRepository.save(task);
+        }
+    }
 
 }

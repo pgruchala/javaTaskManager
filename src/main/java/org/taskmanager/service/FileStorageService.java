@@ -18,7 +18,8 @@ public class FileStorageService {
 
     private final Path uploadPath;
     private final List<String> allowedExtensions;
-    public FileStorageService(@Value("@{app.upload.dir}") String uploadDir,
+
+    public FileStorageService(@Value("${app.upload.dir}") String uploadDir,
                               @Value("${app.upload.allowed-extensions}") String allowedExtensions){
         this.uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
         this.allowedExtensions = Arrays.asList(allowedExtensions.split(","));

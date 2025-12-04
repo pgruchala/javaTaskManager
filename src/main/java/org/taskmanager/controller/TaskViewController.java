@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.taskmanager.dto.TaskDTO;
 import org.taskmanager.model.Status;
 import org.taskmanager.model.Task;
@@ -39,7 +40,7 @@ public class TaskViewController {
     @GetMapping("/new")
     public String ShowCreateForm(Model model){
         model.addAttribute("taskDTO", new TaskDTO());
-        model.addAttribute("categories", categoryService.getAllCategories()); // Do listy rozwijanej
+        model.addAttribute("categories", categoryService.getAllCategories());
         return "tasks/form";
     }
 
@@ -47,7 +48,6 @@ public class TaskViewController {
     public String showEditForm(@PathVariable Long id, Model model) {
         Task task = taskService.getTaskById(id);
 
-        // Mapujemy encję na DTO, aby wypełnić formularz
         TaskDTO dto = new TaskDTO(
                 task.getTitle(),
                 task.getDescription(),
@@ -65,18 +65,25 @@ public class TaskViewController {
     @PostMapping("/save")
     public String saveTask(@Valid @ModelAttribute("taskDTO") TaskDTO taskDTO,
                            BindingResult result,
+                           @RequestParam(value = "attachment", required = false) MultipartFile attachment,
                            Model model) {
         if (result.hasErrors()) {
             model.addAttribute("categories", categoryService.getAllCategories());
             return "tasks/form";
         }
-        taskService.createTask(taskDTO);
+        Task createdTask = taskService.createTask(taskDTO);
+
+        if (attachment != null && !attachment.isEmpty()) {
+            taskService.uploadAttachment(createdTask.getId(), attachment);
+        }
+
         return "redirect:/tasks";
     }
     @PostMapping("/update/{id}")
     public String updateTask(@PathVariable Long id,
                              @Valid @ModelAttribute("taskDTO") TaskDTO taskDTO,
                              BindingResult result,
+                             @RequestParam(value = "attachment", required = false) MultipartFile attachment,
                              Model model) {
         if (result.hasErrors()) {
             model.addAttribute("taskId", id);
@@ -84,6 +91,10 @@ public class TaskViewController {
             return "tasks/form";
         }
         taskService.updateTask(id, taskDTO);
+
+        if (attachment != null && !attachment.isEmpty()) {
+            taskService.uploadAttachment(id, attachment);
+        }
         return "redirect:/tasks";
     }
     @GetMapping("/delete/{id}")

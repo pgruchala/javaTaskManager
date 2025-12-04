@@ -6,18 +6,28 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.taskmanager.dto.TaskDTO;
+import org.taskmanager.exceptions.ResourceNotFoundException;
 import org.taskmanager.model.Status;
 import org.taskmanager.model.Task;
+import org.taskmanager.service.FileStorageService;
 import org.taskmanager.service.TaskService;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 @RestController
@@ -25,9 +35,11 @@ import java.util.List;
 public class TaskController {
 
     private final TaskService taskService;
+    private final FileStorageService fileStorageService;
 
-    public TaskController(TaskService taskService){
+    public TaskController(TaskService taskService, FileStorageService fileStorageService){
         this.taskService = taskService;
+        this.fileStorageService = fileStorageService;
     }
     @GetMapping
     @Operation(summary ="Pobierz wszystkie statystyki (z możliwością filtrowania / paginacji)")
@@ -86,5 +98,60 @@ public class TaskController {
         response.addHeader("Content-Disposition", "attachment; filename=\"tasks_export.csv\"");
 
         taskService.exportTasksToCsv(response.getWriter());
+    }
+
+    @PostMapping("/{id}/attachment")
+    @Operation(summary = "Dodaj załącznik do zadania")
+    @ApiResponse(responseCode = "200", description = "Załącznik dodany pomyślnie")
+    public ResponseEntity<Task> uploadAttachment(
+            @PathVariable Long id,
+            @RequestParam("file") MultipartFile file) {
+
+        try {
+            Task updatedTask = taskService.uploadAttachment(id, file);
+            return ResponseEntity.ok(updatedTask);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/{id}/attachment")
+    @Operation(summary = "Pobierz załącznik zadania")
+    @ApiResponse(responseCode = "200", description = "Załącznik pobrany pomyślnie")
+    public ResponseEntity<Resource> downloadAttachment(@PathVariable Long id) {
+        try {
+            Path filePath = taskService.getAttachment(id);
+            Resource resource = new UrlResource(filePath.toUri());
+
+            if (!resource.exists() || !resource.isReadable()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            String contentType = Files.probeContentType(filePath);
+            if (contentType == null) {
+                contentType = "application/octet-stream";
+            }
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=\"" + resource.getFilename() + "\"")
+                    .body(resource);
+
+        } catch (ResourceNotFoundException ex) {
+            return ResponseEntity.notFound().build();
+        } catch (MalformedURLException ex) {
+            return ResponseEntity.badRequest().build();
+        } catch (IOException ex) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @DeleteMapping("/{id}/attachment")
+    @Operation(summary = "Usuń załącznik zadania")
+    @ApiResponse(responseCode = "204", description = "Załącznik usunięty pomyślnie")
+    public ResponseEntity<Void> deleteAttachment(@PathVariable Long id) {
+        taskService.deleteAttachment(id);
+        return ResponseEntity.noContent().build();
     }
 }

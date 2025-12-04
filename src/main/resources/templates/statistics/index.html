@@ -5,7 +5,12 @@
 <nav th:replace="~{layout :: navbar}"></nav>
 
 <div class="container">
-    <h2 class="mb-4">Statystyki Projektu</h2>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Statystyki Projektu</h2>
+        <a th:href="@{/api/tasks/statistics/export/pdf}" class="btn btn-outline-danger">
+            Eksportuj do PDF
+        </a>
+    </div>
 
     <div class="card shadow-sm mb-4">
         <div class="card-body">
