@@ -4,6 +4,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.taskmanager.dto.CategoryDTO;
+import org.taskmanager.exceptions.InsufficientDataProvidedException;
 import org.taskmanager.exceptions.ResourceNotFoundException;
 import org.taskmanager.model.Category;
 import org.taskmanager.model.Task;
@@ -46,7 +47,7 @@ public class CategoryService {
     public Category createCategory(CategoryDTO categoryDTO) {
         User currentUser = getCurrentUser();
         if (categoryRepository.existsByNameAndUser(categoryDTO.getName(),currentUser)) {
-            throw new RuntimeException("Category with this name already exists");
+            throw new InsufficientDataProvidedException("Category with this name already exists");
         }
         Category category = new Category();
         category.setName(categoryDTO.getName());
@@ -62,7 +63,7 @@ public class CategoryService {
 
         if (!category.getName().equals(categoryDTO.getName()) &&
                 categoryRepository.existsByNameAndUser(categoryDTO.getName(), currentUser)) {
-            throw new RuntimeException("Category name already exists");
+            throw new InsufficientDataProvidedException("Category name already exists");
         }
 
         category.setName(categoryDTO.getName());

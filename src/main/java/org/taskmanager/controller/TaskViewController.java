@@ -1,5 +1,6 @@
 package org.taskmanager.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -71,6 +72,17 @@ public class TaskViewController {
             model.addAttribute("categories", categoryService.getAllCategories());
             return "tasks/form";
         }
+
+        if (attachment != null && !attachment.isEmpty()) {
+            try {
+                taskService.validateAttachment(attachment);
+            } catch (IllegalArgumentException e) {
+                model.addAttribute("categories", categoryService.getAllCategories());
+                model.addAttribute("attachmentError", e.getMessage());
+                return "tasks/form";
+            }
+        }
+        
         Task createdTask = taskService.createTask(taskDTO);
 
         if (attachment != null && !attachment.isEmpty()) {
@@ -90,6 +102,18 @@ public class TaskViewController {
             model.addAttribute("categories", categoryService.getAllCategories());
             return "tasks/form";
         }
+
+        if (attachment != null && !attachment.isEmpty()) {
+            try {
+                taskService.validateAttachment(attachment);
+            } catch (IllegalArgumentException e) {
+                model.addAttribute("taskId", id);
+                model.addAttribute("categories", categoryService.getAllCategories());
+                model.addAttribute("attachmentError", e.getMessage());
+                return "tasks/form";
+            }
+        }
+        
         taskService.updateTask(id, taskDTO);
 
         if (attachment != null && !attachment.isEmpty()) {
@@ -102,4 +126,10 @@ public class TaskViewController {
         taskService.deleteTask(id);
         return "redirect:/tasks";
     }
+//
+//    @PostMapping("/api/clear-session-message")
+//    public void clearSessionMessage(HttpServletRequest request) {
+//        request.getSession().removeAttribute("message");
+//        request.getSession().removeAttribute("messageType");
+//    }
 }

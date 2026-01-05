@@ -3,6 +3,7 @@ package org.taskmanager.service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.taskmanager.exceptions.InsufficientDataProvidedException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,7 +34,7 @@ public class FileStorageService {
 
     public String storeFile(MultipartFile file, String taskTitle){
         if (file.isEmpty()){
-            throw new IllegalArgumentException("Nie można zapisać pustego pliku");
+            throw new InsufficientDataProvidedException("Nie można zapisać pustego pliku");
         }
         String originalFilename = file.getOriginalFilename();
         if (originalFilename==null){
@@ -53,9 +54,22 @@ public class FileStorageService {
         } catch (IOException e){
             throw new RuntimeException("Błąd podczas zapisu",e);
         }
-
-
     }
+
+    public void validateFile(MultipartFile file) {
+        if (file.isEmpty()) {
+            throw new InsufficientDataProvidedException("Nie można zapisać pustego pliku");
+        }
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null) {
+            throw new IllegalArgumentException("Nie można zapisać pliku bez nazwy");
+        }
+        String extension = getFileExtension(originalFilename);
+        if (!allowedExtensions.contains(extension.toLowerCase())) {
+            throw new IllegalArgumentException("Niedozwolone rozszerzenie pliku. Dozwolone: " + allowedExtensions);
+        }
+    }
+
     public Path loadFile(String filename) {
         return uploadPath.resolve(filename).normalize();
     }

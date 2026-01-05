@@ -165,6 +165,13 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
+    public void validateAttachment(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("Plik nie może być pusty");
+        }
+        fileStorageService.validateFile(file);
+    }
+
     @Transactional(readOnly = true)
     public Path getAttachment(Long id) {
         Task task = getTaskById(id);

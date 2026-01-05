@@ -118,33 +118,27 @@ public class TaskController {
     @GetMapping("/{id}/attachment")
     @Operation(summary = "Pobierz załącznik zadania")
     @ApiResponse(responseCode = "200", description = "Załącznik pobrany pomyślnie")
-    public ResponseEntity<Resource> downloadAttachment(@PathVariable Long id) {
-        try {
-            Path filePath = taskService.getAttachment(id);
-            Resource resource = new UrlResource(filePath.toUri());
+    public ResponseEntity<Resource> downloadAttachment(@PathVariable Long id) throws IOException {
 
-            if (!resource.exists() || !resource.isReadable()) {
-                return ResponseEntity.notFound().build();
-            }
+        Path filePath = taskService.getAttachment(id);
+        Resource resource = new UrlResource(filePath.toUri());
 
-            String contentType = Files.probeContentType(filePath);
-            if (contentType == null) {
-                contentType = "application/octet-stream";
-            }
-
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(contentType))
-                    .header(HttpHeaders.CONTENT_DISPOSITION,
-                            "attachment; filename=\"" + resource.getFilename() + "\"")
-                    .body(resource);
-
-        } catch (ResourceNotFoundException ex) {
+        if (!resource.exists() || !resource.isReadable()) {
             return ResponseEntity.notFound().build();
-        } catch (MalformedURLException ex) {
-            return ResponseEntity.badRequest().build();
-        } catch (IOException ex) {
-            return ResponseEntity.internalServerError().build();
         }
+
+        String contentType = Files.probeContentType(filePath);
+        if (contentType == null) {
+            contentType = "application/octet-stream";
+        }
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
+
+
     }
 
     @DeleteMapping("/{id}/attachment")

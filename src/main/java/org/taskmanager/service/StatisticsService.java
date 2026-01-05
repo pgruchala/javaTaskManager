@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.taskmanager.dto.StatsDTO;
 import org.taskmanager.model.Status;
 import org.taskmanager.model.User;
-import org.taskmanager.repository.StatisticsDao;
 import org.taskmanager.repository.UserRepository;
 
 import java.sql.ResultSet;

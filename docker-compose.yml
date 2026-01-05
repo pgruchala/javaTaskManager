@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: task-manager-app
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./uploads:/app/uploads
+      - ./h2-data:/app/h2-data
+    environment:
+      JAVA_OPTS: "-Dspring.h2.console.enabled=true"
+    restart: unless-stopped
+    networks:
+      - task-network
+
+volumes:
+  h2-data:
+    driver: local
+
+networks:
+  task-network:
+    driver: bridge
