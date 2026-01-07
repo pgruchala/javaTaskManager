@@ -52,7 +52,7 @@ public class AuthControllerTest {
 
         mockMvc.perform(post("/register")
                         .param("username", "newuser")
-                        .param("password", "pass"))
+                        .param("password", "password"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/login?success"));
 
@@ -66,9 +66,9 @@ public class AuthControllerTest {
 
         mockMvc.perform(post("/register")
                         .param("username", "existing")
-                        .param("password", "pass"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/register?error"));
+                        .param("password", "password"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("register"));
 
         verify(userRepository, never()).save(any(User.class));
     }

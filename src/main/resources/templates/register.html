@@ -20,12 +20,18 @@
                     <form th:action="@{/register}" th:object="${user}" method="post">
                         <div class="mb-3">
                             <label for="username" class="form-label">Nazwa użytkownika</label>
-                            <input type="text" th:field="*{username}" class="form-control" required>
+                            <input type="text" th:field="*{username}" class="form-control" th:classappend="${#fields.hasErrors('username')} ? 'is-invalid' : ''" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('username')}" th:errors="*{username}">
+                                Błąd nazwy użytkownika
+                            </div>
                         </div>
 
                         <div class="mb-3">
                             <label for="password" class="form-label">Hasło</label>
-                            <input type="password" th:field="*{password}" class="form-control" required>
+                            <input type="password" th:field="*{password}" class="form-control" th:classappend="${#fields.hasErrors('password')} ? 'is-invalid' : ''" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">
+                                Błąd hasła
+                            </div>
                         </div>
 
                         <div class="d-grid gap-2">

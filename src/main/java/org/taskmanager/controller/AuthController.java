@@ -1,8 +1,10 @@
 package org.taskmanager.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,9 +34,14 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String registerUser(@ModelAttribute RegisterDTO registerDTO){
+    public String registerUser(@Valid @ModelAttribute("user") RegisterDTO registerDTO, BindingResult result){
+        if (result.hasErrors()){
+            return "register";
+        }
+
         if (userRepository.findByUsername(registerDTO.getUsername()).isPresent()){
-            return "redirect:/register?error";
+            result.rejectValue("username","error.user","Użytkownik o takiej nazwie już istnieje");
+            return "register";
         }
         User user = new User();
         user.setUsername(registerDTO.getUsername());
