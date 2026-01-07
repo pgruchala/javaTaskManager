@@ -13,6 +13,12 @@ services:
       - ./h2-data:/app/h2-data
     environment:
       JAVA_OPTS: "-Dspring.h2.console.enabled=true"
+      OTEL_TRACES_EXPORTER: "console"
+      OTEL_METRICS_EXPORTER: "none"
+      OTEL_LOGS_EXPORTER: "none"
+      # OTEL_COLLECTOR_HOST: "localhost"
+      # OTEL_COLLECTOR_HOST: "host.docker.internal"
+
     restart: unless-stopped
     networks:
       - task-network

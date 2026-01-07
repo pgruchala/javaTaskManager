@@ -41,7 +41,7 @@ class TaskViewControllerTest {
     private CategoryService categoryService;
 
     @Test
-    void testShouldDisplayListOfTasks() throws Exception {
+    void shouldDisplayListOfTasks() throws Exception {
         List<Task> tasks = new ArrayList<>();
         Task t1 = new Task();
         t1.setId(1L);
@@ -72,7 +72,7 @@ class TaskViewControllerTest {
     }
 
     @Test
-    void testShouldDisplayCreateForm() throws Exception {
+    void shouldDisplayCreateForm() throws Exception {
         when(categoryService.getAllCategories()).thenReturn(new ArrayList<>());
 
         mockMvc.perform(get("/tasks/new"))
@@ -83,7 +83,7 @@ class TaskViewControllerTest {
     }
 
     @Test
-    void testShouldSaveTaskAndRedirect() throws Exception {
+    void shouldSaveTaskAndRedirect() throws Exception {
         Task created = new Task();
         created.setId(10L);
         when(taskService.createTask(any())).thenReturn(created);
@@ -100,7 +100,7 @@ class TaskViewControllerTest {
     }
 
     @Test
-    void testShouldReturnFormOnValidationError() throws Exception {
+    void shouldReturnFormOnValidationError() throws Exception {
         mockMvc.perform(post("/tasks/save")
                         .param("title", "")
                         .param("status", "TODO"))
@@ -111,7 +111,7 @@ class TaskViewControllerTest {
     }
 
     @Test
-    void testShouldShowEditForm() throws Exception {
+    void shouldShowEditForm() throws Exception {
         Task t = new Task();
         t.setId(7L);
         t.setTitle("Old Task");
@@ -137,7 +137,7 @@ class TaskViewControllerTest {
     }
 
     @Test
-    void testShouldUpdateTaskAndRedirect() throws Exception {
+    void shouldUpdateTaskAndRedirect() throws Exception {
         Task updated = new Task();
         updated.setId(7L);
         when(taskService.updateTask(eq(7L), any())).thenReturn(updated);
@@ -154,7 +154,7 @@ class TaskViewControllerTest {
     }
 
     @Test
-    void testShouldReturnFormOnUpdateValidationError() throws Exception {
+    void shouldReturnFormOnUpdateValidationError() throws Exception {
         when(categoryService.getAllCategories()).thenReturn(new ArrayList<>());
 
         mockMvc.perform(post("/tasks/update/{id}", 8L)
@@ -168,7 +168,7 @@ class TaskViewControllerTest {
     }
 
     @Test
-    void testShouldDeleteTaskAndRedirect() throws Exception {
+    void shouldDeleteTaskAndRedirect() throws Exception {
         doNothing().when(taskService).deleteTask(3L);
 
         mockMvc.perform(get("/tasks/delete/{id}", 3L))
@@ -180,7 +180,7 @@ class TaskViewControllerTest {
 
 
     @Test
-    void testShouldReturnFormWhenAttachmentInvalidOnSave() throws Exception {
+    void shouldReturnFormWhenAttachmentInvalidOnSave() throws Exception {
         MockMultipartFile file = new MockMultipartFile("attachment", "file.txt", "text/plain", "data".getBytes());
         doThrow(new IllegalArgumentException("invalid")).when(taskService).validateAttachment(any());
         when(categoryService.getAllCategories()).thenReturn(new ArrayList<>());
@@ -198,7 +198,7 @@ class TaskViewControllerTest {
     }
 
     @Test
-    void testShouldReturnFormWhenAttachmentInvalidOnUpdate() throws Exception {
+    void shouldReturnFormWhenAttachmentInvalidOnUpdate() throws Exception {
         MockMultipartFile file = new MockMultipartFile("attachment", "file.txt", "text/plain", "data".getBytes());
         doThrow(new IllegalArgumentException("invalid")).when(taskService).validateAttachment(any());
         when(categoryService.getAllCategories()).thenReturn(new ArrayList<>());

@@ -24,7 +24,7 @@ class StatisticsViewControllerTest {
     private StatisticsService statisticsService;
 
     @Test
-    void testShouldDisplayStatistics() throws Exception {
+    void shouldDisplayStatistics() throws Exception {
         StatsDTO dto = new StatsDTO(10, 4, 3, 3, 60.0);
         when(statisticsService.getStatistics()).thenReturn(dto);
 

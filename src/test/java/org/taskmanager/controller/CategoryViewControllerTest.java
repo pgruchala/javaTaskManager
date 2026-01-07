@@ -31,7 +31,7 @@ class CategoryViewControllerTest {
     private CategoryService categoryService;
 
     @Test
-    void testShouldDisplayListOfCategories() throws Exception {
+    void shouldDisplayListOfCategories() throws Exception {
         List<Category> categories = new ArrayList<>();
         Category c1 = new Category("Work", "#ffffff", null);
         c1.setId(1L);
@@ -53,7 +53,7 @@ class CategoryViewControllerTest {
     }
 
     @Test
-    void testShouldDisplayCreateForm() throws Exception {
+    void shouldDisplayCreateForm() throws Exception {
         mockMvc.perform(get("/categories/new"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("categories/form"))
@@ -61,7 +61,7 @@ class CategoryViewControllerTest {
     }
 
     @Test
-    void testShouldSaveCategoryAndRedirect() throws Exception {
+    void shouldSaveCategoryAndRedirect() throws Exception {
         Category created = new Category("New Cat", "#123456", null);
         created.setId(99L);
         when(categoryService.createCategory(any(CategoryDTO.class))).thenReturn(created);
@@ -76,7 +76,7 @@ class CategoryViewControllerTest {
     }
 
     @Test
-    void testShouldShowEditForm() throws Exception {
+    void shouldShowEditForm() throws Exception {
         Category cat = new Category("EditMe", "#abc", null);
         cat.setId(5L);
         when(categoryService.getCategoryById(5L)).thenReturn(cat);
@@ -91,7 +91,7 @@ class CategoryViewControllerTest {
     }
 
     @Test
-    void testShouldUpdateCategoryAndRedirect() throws Exception {
+    void shouldUpdateCategoryAndRedirect() throws Exception {
         Category updated = new Category("Updated", "#fff", null);
         updated.setId(5L);
         when(categoryService.updateCategory(eq(5L), any(CategoryDTO.class))).thenReturn(updated);
@@ -106,7 +106,7 @@ class CategoryViewControllerTest {
     }
 
     @Test
-    void testShouldReturnFormOnUpdateValidationError() throws Exception {
+    void shouldReturnFormOnUpdateValidationError() throws Exception {
         mockMvc.perform(post("/categories/update/{id}", 6L)
                         .param("name", "")
                         .param("color", "#fff"))
@@ -118,7 +118,7 @@ class CategoryViewControllerTest {
     }
 
     @Test
-    void testShouldDeleteCategoryAndRedirect() throws Exception {
+    void shouldDeleteCategoryAndRedirect() throws Exception {
         doNothing().when(categoryService).deleteCategory(3L);
 
         mockMvc.perform(get("/categories/delete/{id}", 3L))
